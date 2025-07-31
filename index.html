@@ -6,106 +6,159 @@
     <title>Word 写作助手 - 安装说明</title>
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             max-width: 800px;
-            margin: 0 auto;
-            padding: 40px 20px;
-            line-height: 1.6;
+            margin: 40px auto;
+            padding: 0 20px;
+            line-height: 1.7;
             color: #333;
+            background-color: #fdfdfd;
+        }
+        h1, h2 {
+            color: #2b579a;
+            border-bottom: 2px solid #eef;
+            padding-bottom: 10px;
         }
         h1 {
-            color: #2b579a;
             text-align: center;
+            border-bottom: none;
+        }
+        .container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
         }
         .download-box {
-            background: #f0f8ff;
-            border: 2px solid #2b579a;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 30px 0;
             text-align: center;
         }
         .download-btn {
             display: inline-block;
             background: #2b579a;
-            color: white;
+            color: white !important;
             padding: 15px 30px;
             text-decoration: none;
-            border-radius: 5px;
+            border-radius: 8px;
             font-size: 18px;
+            font-weight: 500;
             margin: 10px;
+            transition: background-color 0.2s, transform 0.2s;
         }
         .download-btn:hover {
             background: #1e3a5f;
+            transform: translateY(-2px);
         }
-        .steps {
-            background: #f9f9f9;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-        .steps ol {
-            padding-left: 20px;
+        .steps ol, .steps ul {
+            padding-left: 25px;
         }
         .steps li {
-            margin: 10px 0;
+            margin: 12px 0;
+            padding-left: 10px;
+        }
+        .steps li::marker {
+            font-weight: bold;
+            color: #2b579a;
         }
         code {
             background: #e9e9e9;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-family: Consolas, monospace;
+            padding: 3px 7px;
+            border-radius: 5px;
+            font-family: Consolas, 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        .method-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #1e3a5f;
+            margin-top: 20px;
+        }
+        .note {
+            background-color: #fffbe6;
+            border-left: 4px solid #facc15;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            color: #777;
+            font-size: 0.9em;
         }
     </style>
 </head>
 <body>
-    <h1>📝 Word 写作助手</h1>
+    <h1>📝 Word 写作计划助手</h1>
     
-    <p style="text-align: center; font-size: 18px;">
-        一个帮助您跟踪写作进度、设定目标的 Word 插件
+    <p style="text-align: center; font-size: 18px; color: #555;">
+        一个帮助您设定目标、追踪进度、告别拖延的 Word 插件。
     </p>
-    
-    <div class="download-box">
-        <h2>立即安装</h2>
-        <a href="manifest.xml" class="download-btn" download>
-            ⬇️ 下载安装文件 (manifest.xml)
-        </a>
+
+    <div class="container">
+        <h2>🚀 安装指南</h2>
+        <p>我们提供两种安装方法，如果方法一无效，请务必尝试方法二。</p>
+
+        <!-- 方法一 -->
+        <div class="method">
+            <h3 class="method-title">方法一：直接上传 (推荐)</h3>
+            <p>适用于 Word Online 或支持“上传我的加载项”的桌面版 Word。</p>
+            <div class="download-box">
+                <a href="manifest.xml" class="download-btn" download>
+                    ⬇️ 下载安装文件 (manifest.xml)
+                </a>
+            </div>
+            <div class="steps">
+                <ol>
+                    <li>点击上方按钮下载 <code>manifest.xml</code> 文件。</li>
+                    <li>打开 Microsoft Word，点击菜单：<code>插入</code> → <code>我的加载项</code>。</li>
+                    <li>在弹出的窗口中，选择 <strong><code>上传我的加载项</code></strong>。</li>
+                    <li>选择您刚刚下载的 <code>manifest.xml</code> 文件。</li>
+                    <li>完成！在 <code>开始</code> 选项卡中找到插件按钮并启动。</li>
+                </ol>
+            </div>
+        </div>
+
+        <hr style="border: none; border-top: 1px solid #eee; margin: 40px 0;">
+
+        <!-- 方法二 -->
+        <div class="method">
+            <h3 class="method-title">方法二：使用共享文件夹 (当方法一无效时)</h3>
+            <p>适用于无法直接上传加载项的 Word 桌面版 (Windows)。</p>
+            <div class="steps">
+                <ol>
+                    <li>首先，还是需要下载安装文件：<a href="manifest.xml" download>点击此处下载 manifest.xml</a>。</li>
+                    <li>创建一个用于存放插件的**本地文件夹**，例如在您的 "文档" 文件夹中创建一个名为 <code>WordAddins</code> 的新文件夹。</li>
+                    <li>将下载的 <code>manifest.xml</code> 文件**移动**到这个新创建的 <code>WordAddins</code> 文件夹中。</li>
+                    <li>打开 Word，点击 <code>文件</code> → <code>选项</code> → <code>信任中心</code>。</li>
+                    <li>点击 <code>信任中心设置...</code> 按钮。</li>
+                    <li>在左侧选择 <code>受信任的加载项目录</code>。</li>
+                    <li>在 "目录 URL" 框中，**输入您在第2步创建的文件夹的完整路径** (例如 <code>C:\Users\您的用户名\Documents\WordAddins</code>)，然后点击 <code>添加目录</code>。</li>
+                    <li>确保勾选 <strong><code>在菜单中显示</code></strong> 复选框，然后点击两次“确定”关闭所有设置窗口。</li>
+                    <li>现在，再次点击 <code>插入</code> → <code>我的加载项</code>，在窗口顶部选择 <strong><code>共享文件夹</code></strong>，您就能看到并启动“写作计划助手”了！</li>
+                </ol>
+            </div>
+            <div class="note">
+                <strong>提示：</strong> 您可以右键点击 <code>WordAddins</code> 文件夹，选择“属性”，在“位置”字段中复制其完整路径，以避免手动输入错误。
+            </div>
+        </div>
     </div>
     
-    <div class="steps">
-        <h2>📋 安装步骤</h2>
-        <ol>
-            <li>点击上方按钮下载 <code>manifest.xml</code> 文件</li>
-            <li>打开 Microsoft Word</li>
-            <li>点击菜单：<code>插入</code> → <code>获取加载项</code> → <code>我的加载项</code></li>
-            <li>点击 <code>上传我的加载项</code></li>
-            <li>选择刚才下载的 <code>manifest.xml</code> 文件</li>
-            <li>完成！在 <code>开始</code> 选项卡中找到 <code>写作助手</code> 按钮</li>
-        </ol>
-    </div>
-    
-    <div class="steps">
+    <div class="container">
         <h2>✨ 功能特点</h2>
-        <ul>
-            <li>📊 实时字数统计</li>
-            <li>🎯 设定每日写作目标</li>
-            <li>📈 进度可视化图表</li>
-            <li>⏰ 定时提醒功能</li>
-            <li>📅 历史记录查看</li>
-        </ul>
+        <div class="steps">
+            <ul>
+                <li>📊 实时字数统计与进度条</li>
+                <li>🎯 设定每日及总写作目标</li>
+                <li>📈 进度可视化图表分析</li>
+                <li>⏰ 自定义定时提醒功能</li>
+                <li>📅 清晰的写作历史记录</li>
+            </ul>
+        </div>
     </div>
-    
-    <div class="steps">
-        <h2>❓ 常见问题</h2>
-        <h3>插件无法加载？</h3>
-        <p>请确保您使用的是 Word 2016 或更高版本，并且已连接到互联网。</p>
-        
-        <h3>如何卸载？</h3>
-        <p>在 Word 中点击 <code>插入</code> → <code>我的加载项</code>，找到写作助手，点击右上角的三个点，选择删除。</p>
-    </div>
-    
-    <footer style="text-align: center; margin-top: 50px; color: #666;">
-        <p>© 2024 Word 写作助手</p>
+
+    <footer>
+        <p>© 2024 Word 写作计划助手</p>
     </footer>
 </body>
 </html>
