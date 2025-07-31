@@ -2,7 +2,7 @@
 
 这是一个为 Microsoft Word 设计的加载项（Add-in），旨在帮助写作者、学生和内容创作者更高效地管理他们的写作项目。通过设定目标、追踪进度和可视化分析，您可以更好地掌控写作节奏，告别拖延。
 
-![插件截图](https://chunyanghu.github.io/WritingPlannerAdd/assets/screenshot.png)  <!-- 建议您截一张插件运行的图，并替换此处的链接 -->
+<img width="506" height="525" alt="写作助手界面" src="https://github.com/user-attachments/assets/ee22a7ff-ea31-4274-abd5-a69d801452a3" />
 
 **在线体验和安装**: [https://chunyanghu.github.io/WritingPlannerAdd/](https://chunyanghu.github.io/WritingPlannerAdd/)
 
