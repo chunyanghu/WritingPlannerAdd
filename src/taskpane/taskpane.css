@@ -91,3 +91,19 @@ body {
 .alert {
     margin-top: 10px;
 }
+/* ... 在 taskpane.css 文件末尾添加 ... */
+
+.project-manager {
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.project-manager .form-group {
+    margin-bottom: 10px;
+}
+
+.project-actions {
+    display: flex;
+    justify-content: space-between;
+}
