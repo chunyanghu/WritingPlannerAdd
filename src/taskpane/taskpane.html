@@ -12,7 +12,7 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     
-	<!-- 在 Office.js 之后添加 -->
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     
     <!-- Custom CSS -->
@@ -23,16 +23,16 @@
         <div class="header">
             <h2>写作计划助手</h2>
         </div>
-    <div class="project-manager">
-        <div class="form-group">
-            <label for="projectSelector">当前项目</label>
-            <select class="form-control" id="projectSelector"></select>
-        </div>
-        <div class="project-actions">
-            <button class="btn btn-sm btn-outline-primary" id="newProjectBtn">新建</button>
-            <button class="btn btn-sm btn-outline-danger" id="deleteProjectBtn">删除</button>
-        </div>
-    </div>    
+        <div class="project-manager">
+            <div class="form-group">
+                <label for="projectSelector">当前项目</label>
+                <select class="form-control" id="projectSelector"></select>
+            </div>
+            <div class="project-actions">
+                <button class="btn btn-sm btn-outline-primary" id="newProjectBtn">新建</button>
+                <button class="btn btn-sm btn-outline-danger" id="deleteProjectBtn">删除</button>
+            </div>
+        </div>    
         <!-- 标签页 -->
         <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item">
@@ -123,9 +123,52 @@
             </div>
         </div>
     </div>
+
+    <!-- 新建项目模态框 (Modal) -->
+    <div class="modal fade" id="newProjectModal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">新建项目</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p>请输入新项目的名称：</p>
+            <input type="text" class="form-control" id="newProjectNameInput" placeholder="项目名称">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+            <button type="button" class="btn btn-primary" id="confirmNewProjectBtn">创建</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 删除确认模态框 (Modal) -->
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">确认删除</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p>您确定要删除项目 "<strong id="deleteProjectName"></strong>" 吗？此操作无法撤销。</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">确认删除</button>
+          </div>
+        </div>
+      </div>
+    </div>
     
-    <!-- Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <!-- Bootstrap JS (and its dependency jQuery) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
     
     <!-- Custom JS -->
