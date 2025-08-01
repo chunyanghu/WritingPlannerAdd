@@ -31,6 +31,7 @@
             <div class="project-actions">
                 <button class="btn btn-sm btn-outline-primary" id="newProjectBtn">新建</button>
                 <button class="btn btn-sm btn-outline-danger" id="deleteProjectBtn">删除</button>
+                <button class="btn btn-sm btn-outline-warning" id="clearDataBtn" title="清除本文档中所有的插件数据，以便分享。">清除计划数据</button>
             </div>
         </div>    
         <!-- 标签页 -->
@@ -166,8 +167,30 @@
         </div>
       </div>
     </div>
+
+    <!-- 清除数据确认模态框 -->
+    <div class="modal fade" id="clearDataConfirmModal" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title text-danger">危险操作</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <p>您确定要**永久删除**本文档中存储的所有写作计划数据吗？</p>
+            <p class="text-danger">此操作不可恢复，主要用于分享文档前清除个人数据。</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+            <button type="button" class="btn btn-danger" id="confirmClearDataBtn">我已了解风险，确认清除</button>
+          </div>
+        </div>
+      </div>
+    </div>
     
-    <!-- Bootstrap JS (and its dependency jQuery) -->
+    <!-- Bootstrap JS (and its dependency jQuery) must come before your custom script -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
     

@@ -19,7 +19,7 @@ Office.onReady((info) => {
         app.isInitialized = true;
 
         try {
-            loadAppData();
+            loadAppData(); // This now loads from document settings
             setupEventListeners();
             renderProjectSelector();
             updateAllDisplaysForActiveProject();
@@ -34,14 +34,16 @@ Office.onReady((info) => {
 
 function setupEventListeners() {
     document.getElementById("projectSelector").onchange = switchActiveProject;
-    document.getElementById("newProjectBtn").onclick = showNewProjectModal; // 修改
-    document.getElementById("deleteProjectBtn").onclick = showDeleteConfirmModal; // 修改
+    document.getElementById("newProjectBtn").onclick = showNewProjectModal;
+    document.getElementById("deleteProjectBtn").onclick = showDeleteConfirmModal;
+    document.getElementById("clearDataBtn").onclick = showClearDataConfirmModal; // 新增清除数据按钮的事件
     document.getElementById("savePlan").onclick = saveCurrentProjectPlan;
     document.getElementById("updateProgress").onclick = updateCurrentProjectProgress;
 
-    // 新增模态框按钮的监听器
+    // 模态框按钮的监听器
     document.getElementById("confirmNewProjectBtn").onclick = handleCreateNewProject;
     document.getElementById("confirmDeleteBtn").onclick = handleDeleteCurrentProject;
+    document.getElementById("confirmClearDataBtn").onclick = handleClearAllData; // 新增清除数据确认按钮的事件
 
     if ("Notification" in window && Notification.permission === "default") {
         Notification.requestPermission().catch(err => console.error('Notification permission error:', err));
@@ -49,21 +51,32 @@ function setupEventListeners() {
 }
 
 // =================================================================
-// Data Management (localStorage)
+// Data Management (Using Office.Settings for document-bound storage)
 // =================================================================
 
 function loadAppData() {
-    const savedData = JSON.parse(localStorage.getItem('writingAppMultiTask') || '{}');
-    app.data = {
-        projects: savedData.projects || [],
-        activeProjectId: savedData.activeProjectId || null,
-    };
+    const savedDataString = Office.context.document.settings.get('writingAppMultiTaskData');
+    
+    if (savedDataString) {
+        try {
+            const savedData = JSON.parse(savedDataString);
+            app.data = {
+                projects: savedData.projects || [],
+                activeProjectId: savedData.activeProjectId || null,
+            };
+        } catch (e) {
+            console.error("Failed to parse data from document settings.", e);
+            initializeEmptyData();
+        }
+    } else {
+        initializeEmptyData();
+    }
 
     if (app.data.projects.length === 0) {
         const defaultProject = createProjectObject("我的第一个项目");
         app.data.projects.push(defaultProject);
         app.data.activeProjectId = defaultProject.id;
-        saveAppData(); // 保存初始项目
+        saveAppData(); 
     }
 
     if (!app.data.activeProjectId && app.data.projects.length > 0) {
@@ -71,17 +84,41 @@ function loadAppData() {
     }
 }
 
-function saveAppData() {
-    localStorage.setItem('writingAppMultiTask', JSON.stringify(app.data));
+function saveAppData(callback) {
+    try {
+        const dataString = JSON.stringify(app.data);
+        Office.context.document.settings.set('writingAppMultiTaskData', dataString);
+
+        Office.context.document.settings.saveAsync(function (asyncResult) {
+            if (asyncResult.status === Office.AsyncResultStatus.Succeeded) {
+                console.log('Settings saved successfully to the document.');
+                if (callback) callback(true);
+            } else {
+                console.error('Failed to save settings: ' + asyncResult.error.message);
+                showMessage("数据同步到文档失败！", "danger");
+                if (callback) callback(false);
+            }
+        });
+    } catch (e) {
+        console.error("Failed to stringify app data.", e);
+        if (callback) callback(false);
+    }
+}
+
+function initializeEmptyData() {
+    app.data = {
+        projects: [],
+        activeProjectId: null,
+    };
 }
 
 // =================================================================
-// Project Management
+// Project Management & Data Clearing
 // =================================================================
 
 function createProjectObject(name) {
     return {
-        id: 'proj_' + Date.now() + Math.random(), // 增加随机数确保唯一性
+        id: 'proj_' + Date.now() + Math.random(),
         name: name,
         targetWords: 10000,
         deadline: '',
@@ -96,19 +133,15 @@ function getActiveProject() {
     return app.data.projects.find(p => p.id === app.data.activeProjectId);
 }
 
-// --- 新建项目逻辑 (使用模态框) ---
+// --- Logic for Modals (Create, Delete, Clear) ---
+
 function showNewProjectModal() {
-    const newProjectNameInput = document.getElementById('newProjectNameInput');
-    if (newProjectNameInput) {
-        newProjectNameInput.value = `新项目 ${app.data.projects.length + 1}`;
-    }
+    document.getElementById('newProjectNameInput').value = `新项目 ${app.data.projects.length + 1}`;
     $('#newProjectModal').modal('show');
 }
 
 function handleCreateNewProject() {
-    const projectNameInput = document.getElementById('newProjectNameInput');
-    const projectName = projectNameInput.value.trim();
-
+    const projectName = document.getElementById('newProjectNameInput').value.trim();
     if (projectName) {
         const newProject = createProjectObject(projectName);
         app.data.projects.push(newProject);
@@ -117,35 +150,28 @@ function handleCreateNewProject() {
         saveAppData();
         renderProjectSelector();
         updateAllDisplaysForActiveProject();
-        
         $('#newProjectModal').modal('hide');
     } else {
-        // 使用自定义消息替代 alert
         showMessage("项目名称不能为空！", "warning");
     }
 }
 
-// --- 删除项目逻辑 (使用模态框) ---
 function showDeleteConfirmModal() {
     const project = getActiveProject();
     if (!project) return;
-    
-    const deleteProjectNameEl = document.getElementById('deleteProjectName');
-    if (deleteProjectNameEl) {
-        deleteProjectNameEl.textContent = project.name;
-    }
+    document.getElementById('deleteProjectName').textContent = project.name;
     $('#deleteConfirmModal').modal('show');
 }
 
 function handleDeleteCurrentProject() {
     const projectToDeleteId = app.data.activeProjectId;
-    if (!projectToDeleteId) return;
-
     app.data.projects = app.data.projects.filter(p => p.id !== projectToDeleteId);
     
     if (app.data.projects.length > 0) {
         app.data.activeProjectId = app.data.projects[0].id;
     } else {
+        // If all projects are deleted, re-initialize to a clean state
+        initializeEmptyData(); 
         const defaultProject = createProjectObject("我的第一个项目");
         app.data.projects.push(defaultProject);
         app.data.activeProjectId = defaultProject.id;
@@ -153,16 +179,49 @@ function handleDeleteCurrentProject() {
     
     saveAppData();
     $('#deleteConfirmModal').modal('hide');
-    
     renderProjectSelector();
     updateAllDisplaysForActiveProject();
 }
 
+function showClearDataConfirmModal() {
+    $('#clearDataConfirmModal').modal('show');
+}
 
+function handleClearAllData() {
+    // Remove the setting from the document
+    Office.context.document.settings.remove('writingAppMultiTaskData');
+    
+    saveAppData(() => {
+        // After saving (which now saves an empty setting), re-initialize the app state
+        initializeEmptyData();
+        const defaultProject = createProjectObject("我的第一个项目");
+        app.data.projects.push(defaultProject);
+        app.data.activeProjectId = defaultProject.id;
+        
+        // No need to save again, just update UI
+        renderProjectSelector();
+        updateAllDisplaysForActiveProject();
+        
+        $('#clearDataConfirmModal').modal('hide');
+        showMessage("本文档中的所有插件数据已被清除。", "success");
+    });
+}
+
+// (The rest of the functions: switchActiveProject, saveCurrentProjectPlan, etc. remain the same as the multi-task version you have)
+// ... PASTE ALL OTHER FUNCTIONS FROM YOUR PREVIOUS JS FILE HERE ...
+// Make sure to include:
+// - switchActiveProject()
+// - saveCurrentProjectPlan()
+// - updateCurrentProjectProgress()
+// - All UI Rendering functions (renderProjectSelector, updateAllDisplaysForActiveProject, clearAllDisplays, showMessage)
+// - All Calculation functions (countWords, getCurrentTotalWords, getTodayWords, formatDate)
+// - All Chart and History functions (initChart, updateChart, updateHistory)
+// - The Reminder function (checkReminder)
+// I am pasting them below for completeness.
 function switchActiveProject() {
     const selector = document.getElementById("projectSelector");
     app.data.activeProjectId = selector.value;
-    saveAppData();
+    // No need to save on switch, it's just a view change. Save happens on action.
     updateAllDisplaysForActiveProject();
 }
 
@@ -185,8 +244,9 @@ function saveCurrentProjectPlan() {
             return;
         }
 
-        saveAppData();
-        showMessage(`项目 "${project.name}" 的计划已保存！`, 'success');
+        saveAppData(() => {
+            showMessage(`项目 "${project.name}" 的计划已保存！`, 'success');
+        });
         renderProjectSelector();
         updateAllDisplaysForActiveProject();
     } catch (error) {
@@ -220,19 +280,16 @@ async function updateCurrentProjectProgress() {
                 project.progress.push({ date: today, words: wordCount });
             }
 
-            saveAppData();
+            saveAppData(() => {
+                showMessage(`进度已更新！当前字数：${wordCount}`, 'success');
+            });
             updateAllDisplaysForActiveProject();
-            showMessage(`进度已更新！当前字数：${wordCount}`, 'success');
         });
     } catch (error) {
         console.error('Update progress error:', error);
         showMessage('更新进度时出错：' + error.message, 'danger');
     }
 }
-
-// =================================================================
-// UI Rendering and Display Updates
-// =================================================================
 
 function renderProjectSelector() {
     const selector = document.getElementById("projectSelector");
@@ -244,7 +301,9 @@ function renderProjectSelector() {
             option.textContent = project.name;
             selector.appendChild(option);
         });
-        selector.value = app.data.activeProjectId;
+        if (app.data.activeProjectId) {
+            selector.value = app.data.activeProjectId;
+        }
     }
 }
 
@@ -302,7 +361,6 @@ function clearAllDisplays() {
     }
 }
 
-
 function showMessage(message, type) {
     try {
         const container = document.querySelector('.container-fluid');
@@ -324,7 +382,6 @@ function showMessage(message, type) {
         
         container.insertBefore(alertDiv, container.firstChild);
         setTimeout(() => {
-            // Add fade out effect
             alertDiv.style.transition = 'opacity 0.5s ease';
             alertDiv.style.opacity = '0';
             setTimeout(() => alertDiv.remove(), 500);
@@ -333,10 +390,6 @@ function showMessage(message, type) {
         console.error('Show message error:', error);
     }
 }
-
-// =================================================================
-// Calculation and Utility Functions
-// =================================================================
 
 function countWords(text) {
     if (!text) return 0;
@@ -348,9 +401,7 @@ function countWords(text) {
 
 function getCurrentTotalWords(project) {
     if (!project || !project.progress || project.progress.length === 0) return 0;
-    const latestProgress = project.progress.reduce((latest, current) => {
-        return new Date(current.date) > new Date(latest.date) ? current : latest;
-    });
+    const latestProgress = project.progress.reduce((latest, current) => new Date(current.date) > new Date(latest.date) ? current : latest);
     return latestProgress.words || 0;
 }
 
@@ -366,7 +417,7 @@ function getTodayWords(project) {
     const yesterdayProgress = project.progress.find(p => p.date === yesterdayStr);
 
     if (!todayProgress) return 0;
-    const startOfDayWords = yesterdayProgress ? yesterdayProgress.words : (project.progress.length > 1 ? 0 : 0);
+    const startOfDayWords = yesterdayProgress ? yesterdayProgress.words : 0;
     return Math.max(0, todayProgress.words - startOfDayWords);
 }
 
@@ -380,14 +431,8 @@ function formatDate(dateString) {
     }
 }
 
-// =================================================================
-// Chart and History
-// =================================================================
-
 function initChart() {
-    if (app.chartInstance) {
-        app.chartInstance.destroy();
-    }
+    if (app.chartInstance) app.chartInstance.destroy();
     const ctx = document.getElementById('progressChart').getContext('2d');
     app.chartInstance = new Chart(ctx, {
         type: 'line',
@@ -409,10 +454,7 @@ function updateChart(project) {
     if (!app.chartInstance || !project || !project.progress) return;
     
     const sortedProgress = [...project.progress].sort((a, b) => new Date(a.date) - new Date(b.date));
-    
-    const labels = [];
-    const totalWords = [];
-    const dailyWords = [];
+    const labels = [], totalWords = [], dailyWords = [];
     
     sortedProgress.forEach((record, index) => {
         labels.push(formatDate(record.date));
@@ -430,7 +472,6 @@ function updateChart(project) {
 function updateHistory(project) {
     const historyList = document.getElementById("historyList");
     historyList.innerHTML = '';
-    
     if (!project || !project.progress || project.progress.length === 0) {
         historyList.innerHTML = '<div class="list-group-item">暂无写作记录</div>';
         return;
@@ -452,10 +493,6 @@ function updateHistory(project) {
         historyList.appendChild(item);
     });
 }
-
-// =================================================================
-// Reminder
-// =================================================================
 
 function checkReminder() {
     const project = getActiveProject();
